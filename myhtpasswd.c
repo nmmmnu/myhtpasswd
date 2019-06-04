@@ -3,20 +3,21 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <unistd.h>	// fork, execvp
+#include <unistd.h>	// fork, execvp, setuid
 #include <stdlib.h>	// exit
 #include <sys/wait.h>	// wait
 #include <stdbool.h>
 
 
 
-#define	HTPASSWD	"/home/nmmm/Development/myhtpasswd/myhtpasswd.help"
+#define	HTPASSWD	"/usr/local/sbin/myhtpasswd.help"
 #define HTPASSWD_VERIFY	"VERIFY"
 #define HTPASSWD_CHANGE	"CHANGE"
 
 
 
-const int SETUID	= -1;	// negative means no need to setuid()
+const int SETUID	= 97;	// negative means no need to setuid()
+const int SETGID	= 5016;	// negative means no need to setuid()
 
 const int RESULT_HELP	= -1;
 const int RESULT_VERIFY	= -2;
@@ -47,7 +48,7 @@ static int myexec(char **args, bool const debug){
 		// child
 		const char *prog = args[0];
 
-		if (execvp(prog, args) != 0)
+		if (execv(prog, args) != 0)
 			error(RESULT_SYS, "Can not exec()\n");
 
 	}else{
@@ -61,10 +62,10 @@ static int myexec(char **args, bool const debug){
 	}
 }
 
-static void myexec_(int const error, char *a1, char *a2, char *a3, char *a4, bool const debug){
+static void myexec_(int const error, char *a0, char *a1, char *a2, char *a3, char *a4, bool const debug){
 	// this works only with defines or non const values...
 	char *args[] = {
-		HTPASSWD,
+		a0,
 		a1,
 		a2,
 		a3,
@@ -83,11 +84,21 @@ static void myexec_(int const error, char *a1, char *a2, char *a3, char *a4, boo
 
 inline static void change(char *host, char *user, char *old_pass, char *new_pass){
 	bool const debug = false;
-	myexec_(RESULT_VERIFY, HTPASSWD_VERIFY, host, user, old_pass, debug);
-	myexec_(RESULT_CHANGE, HTPASSWD_CHANGE, host, user, new_pass, debug);
+	myexec_(RESULT_VERIFY, HTPASSWD, HTPASSWD_VERIFY, host, user, old_pass, debug);
+	myexec_(RESULT_CHANGE, HTPASSWD, HTPASSWD_CHANGE, host, user, new_pass, debug);
 }
 
 static void mysetuid(){
+	if (SETGID < 0){
+		printf("No need to setgid()\n");
+	}else{
+		printf("Trying setgid()\n");
+		if (setgid(SETGID)){
+			printf("Can not setgid()\n");
+			exit(RESULT_SYS);
+		}
+	}
+
 	if (SETUID < 0){
 		printf("No need to setuid()\n");
 	}else{
