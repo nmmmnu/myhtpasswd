@@ -25,8 +25,20 @@ namespace{
 		exit(code);
 	}
 
+	void printPack(){
+	}
+
+	template <typename... Args>
+	void printPack(const char *s, Args... args){
+		printf("\t%s\n", s);
+		printPack(args...);
+	}
+
 	template<typename ...Args>
 	int myexec(bool const debug, const char *prog, Args... args){
+		if (debug)
+			printPack(prog, args...);
+
 		int x = fork();
 
 		switch(x){
@@ -39,6 +51,7 @@ namespace{
 			if (execl(prog, prog, args..., nullptr) != 0)
 				error(Result::SYS, "Can not exec()\n");
 			break;
+
 		default:
 			// parent
 			int stat;
@@ -54,6 +67,16 @@ namespace{
 		return 0;
 	}
 
+	template<typename ...Args>
+	void myexec_(int const error, bool const debug, const char *prog, Args... args){
+		int const code = myexec(debug, prog, args...);
+
+		if (debug)
+			printf("Return code: %d\n", code);
+
+		if (code)
+			exit(error);
+	}
 } //namespace
 
 
@@ -70,8 +93,11 @@ int main(int argc, char **argv){
 	auto email = std::string() + user + '@' + host;
 	auto file  = std::string() + "/VMAIL/AUTH/" + host;
 
-	myexec(
+	bool const debug = false;
+
+	myexec_(
 		Result::VERIFY,
+		debug,
 		"/usr/bin/doveadm",
 		"auth",
 		"test",
@@ -79,8 +105,9 @@ int main(int argc, char **argv){
 		old_pass
 	);
 
-	myexec(
+	myexec_(
 		Result::CHANGE,
+		debug,
 		"/usr/local/bin/htpasswd",
 		"-sb",
 		file.c_str(),
