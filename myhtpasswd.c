@@ -10,9 +10,9 @@
 
 
 
-#define	HTPASSWD	"/usr/local/bin/htpasswd"
-#define HTPASSWD_VERIFY	"-bv"	/* htpasswd -bv */
-#define HTPASSWD_CHANGE	"-b"	/* htpasswd -b  */
+#define	HTPASSWD	"/home/nmmm/Development/myhtpasswd/myhtpasswd.help"
+#define HTPASSWD_VERIFY	"VERIFY"
+#define HTPASSWD_CHANGE	"CHANGE"
 
 
 
@@ -25,7 +25,7 @@ const int RESULT_SYS	= -100;
 
 static int help(const char *s){
 	printf("Usage:\n");
-	printf("\t%s [password_file] [user] [old_password] [new_password]\n", s);
+	printf("\t%s [host] [user] [old_password] [new_password]\n", s);
 
 	return RESULT_HELP;
 }
@@ -61,7 +61,7 @@ static int myexec(char **args, bool const debug){
 	}
 }
 
-static void myexec__(int const error, char *a1, char *a2, char *a3, char *a4, bool const debug){
+static void myexec_(int const error, char *a1, char *a2, char *a3, char *a4, bool const debug){
 	// this works only with defines or non const values...
 	char *args[] = {
 		HTPASSWD,
@@ -81,13 +81,10 @@ static void myexec__(int const error, char *a1, char *a2, char *a3, char *a4, bo
 		exit(error);
 }
 
-inline static void myexec_(int const error, char *a1, char *a2, char *a3, char *a4){
-	myexec__(error, a1, a2, a3, a4, false);
-}
-
-inline static void change(char *file, char *user, char *old_pass, char *new_pass){
-	myexec_(RESULT_VERIFY, HTPASSWD_VERIFY, file, user, old_pass);
-	myexec_(RESULT_CHANGE, HTPASSWD_CHANGE, file, user, new_pass);
+inline static void change(char *host, char *user, char *old_pass, char *new_pass){
+	bool const debug = false;
+	myexec_(RESULT_VERIFY, HTPASSWD_VERIFY, host, user, old_pass, debug);
+	myexec_(RESULT_CHANGE, HTPASSWD_CHANGE, host, user, new_pass, debug);
 }
 
 static void mysetuid(){
