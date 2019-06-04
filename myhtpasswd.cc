@@ -27,12 +27,19 @@ namespace{
 
 	template<typename ...Args>
 	int myexec(bool const debug, const char *prog, Args... args){
-		if (fork() == 0){
+		int x = fork();
+
+		switch(x){
+		case -1:
+			error(Result::SYS, "Can not fork()\n");
+			break;
+
+		case 0:
 			// child
 			if (execl(prog, prog, args..., nullptr) != 0)
 				error(Result::SYS, "Can not exec()\n");
-
-		}else{
+			break;
+		default:
 			// parent
 			int stat;
 			wait(&stat);
@@ -40,6 +47,7 @@ namespace{
 				return WEXITSTATUS(stat);
 			else
 				error(Result::SYS, "Child did not exit correctly\n");
+
 		}
 
 		// in fact it will never reach this point
