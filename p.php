@@ -4,11 +4,11 @@ function e($s){
 }
 
 function m($msg){
-	echo $msg . "\n";
+	echo $msg . "<br />\n";
 	exit;
 }
 
-$myhtpasswd	= "/VMAIL/myhtpasswd";
+$myhtpasswd	= "/sbin/myhtpasswd";
 
 $user		= e("user"		);
 $domain		= e("domain"		);
@@ -19,9 +19,9 @@ $password_new2	= e("password_new2"	);
 if ($password_new1 != $password_new2)
 	m("Passwords does not match!");
 
-$path = "/VMAI/AUTH/$domain";
+$path = "/MAIL/$domain";
 
-$r = system("$myhtpasswd, $path, $password_old, $password_new1);
+system("$myhtpasswd $path $user $password_old $password_new1 >& /dev/null", $r);
 
 if ($r != 0)
 	m("Password not changed!");

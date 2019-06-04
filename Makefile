@@ -2,7 +2,9 @@
 all: myhtpasswd
 
 clean:
-	rm *.o myhtpasswd
+	rm -f		\
+		*.o 	\
+		myhtpasswd
 
 myhtpasswd: myhtpasswd.o
 	gcc -o myhtpasswd myhtpasswd.o
