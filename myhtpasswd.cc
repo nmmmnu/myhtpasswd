@@ -1,6 +1,3 @@
-// make strdup() visible...
-//#define _POSIX_C_SOURCE 200809L
-
 #include <unistd.h>	// fork, execvp, setuid
 #include <stdlib.h>	// exit
 #include <sys/wait.h>	// wait
@@ -8,12 +5,12 @@
 #include <cstdio>
 #include <string>
 
-struct Result{
-	static constexpr int HELP	= -1;
-	static constexpr int VERIFY	= -2;
-	static constexpr int CHANGE	= -3;
-	static constexpr int SYS	= -100;
-};
+namespace Result{
+	const int HELP		= -1;
+	const int VERIFY	= -2;
+	const int CHANGE	= -3;
+	const int SYS		= -100;
+}
 
 namespace{
 	int help(const char *s){
@@ -53,27 +50,6 @@ namespace{
 
 
 
-namespace config{
-	std::string email(const char *host, const char *user){
-		std::string s;
-		s += user;
-		s += '@';
-		s += host;
-
-		return s;
-	}
-
-	std::string file(const char *host){
-		std::string s;
-		s += "/VMAIL/AUTH/";
-		s += host;
-
-		return s;
-	}
-} //namespace config
-
-
-
 int main(int argc, char **argv){
 	if (argc != 4 + 1)
 		return help(argv[0]);
@@ -83,8 +59,8 @@ int main(int argc, char **argv){
 	const char *old_pass	= argv[3];
 	const char *new_pass	= argv[4];
 
-	auto email = config::email(host, user);
-	auto file  = config::file(host);
+	auto email = std::string() + user + '@' + host;
+	auto file  = std::string() + "/VMAIL/AUTH/" + host;
 
 	myexec(
 		Result::VERIFY,
