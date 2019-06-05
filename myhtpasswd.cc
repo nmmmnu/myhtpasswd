@@ -25,7 +25,7 @@ namespace{
 		exit(code);
 	}
 
-	void printPack(){
+	inline void printPack(){
 	}
 
 	template <typename... Args>
